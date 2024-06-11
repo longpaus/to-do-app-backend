@@ -1,51 +1,73 @@
 package com.todobackend.service;
 
+import com.todobackend.dto.TaskDTO;
+import com.todobackend.mapper.ITaskMapper;
 import com.todobackend.model.Task;
+import com.todobackend.model.User;
 import com.todobackend.repository.ITaskRepository;
+import com.todobackend.repository.IUserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 @Service
 public class TaskService implements ITaskService{
-    @Autowired
     ITaskRepository taskRepository;
 
-    public TaskService(ITaskRepository taskRepository) {
-        this.taskRepository = taskRepository;
+    IUserRepository userRepository;
+
+    ITaskMapper taskMapper;
+
+    @Override
+    public Optional<TaskDTO> findTaskById(long taskId) {
+        Task existingTask = taskRepository.findById(taskId)
+                .orElseThrow(() -> new RuntimeException("Task not found"));
+
+        return Optional.of(taskMapper.toDTO(existingTask));
     }
 
     @Override
-    public Task findTaskById(long id) {
-        Optional<Task> task = taskRepository.findById(id);
-        return task.orElse(null);
+    public TaskDTO createTask(TaskDTO taskDTO) {
+        User user = userRepository.findById(taskDTO.getUserId())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        Task task = taskMapper.fromDTO(taskDTO);
+        task.setUser(user);
+
+        return taskMapper.toDTO(taskRepository.save(task));
     }
 
     @Override
-    public Task createTask(Task task) {
-        return taskRepository.save(task);
+    public Optional<TaskDTO> updateTask(long taskId, TaskDTO taskDTO) {
+        Task existingTask = taskRepository.findById(taskId)
+                .orElseThrow(() -> new RuntimeException("Task not found"));
+
+        // Ensure the user exists
+        User user = userRepository.findById(taskDTO.getUserId())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        Task updatedTask = taskMapper.fromDTO(taskDTO);
+        updatedTask.setId(taskId);
+        updatedTask.setUser(user);
+
+        Task savedTask = taskRepository.save(updatedTask);
+        return Optional.of(taskMapper.toDTO(savedTask));
     }
+
+
+
     @Override
-    public Task updateTask(Task task) {
-        // Check if the user exists
-        Optional<Task> optionalTask= taskRepository.findById(task.getId());
-        if (optionalTask.isPresent()) {
-            Task existingTask = optionalTask.get();
+    public Optional<List<TaskDTO>> getTasksByUserName(String username) {
+        List<Task> existingTasks = taskRepository.getTasksByUserName(username)
+                .orElseThrow(() -> new RuntimeException("username not found"));
 
-            existingTask.setName(task.getName());
-            existingTask.setDueDate(task.getDueDate());
-            existingTask.setCompleted(task.isCompleted());
-
-            return taskRepository.save(existingTask);
-        } else {
-            return null;
+        List<TaskDTO> taskDTOS = new ArrayList<>();
+        for (Task task : existingTasks) {
+            taskDTOS.add(taskMapper.toDTO(task));
         }
-    }
-
-    @Override
-    public Optional<List<Task>> getTasksByUserName(String username) {
-        return taskRepository.getTasksByUserName(username);
+        return Optional.of(taskDTOS);
     }
 }

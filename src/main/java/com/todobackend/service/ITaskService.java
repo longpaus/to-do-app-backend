@@ -1,13 +1,12 @@
 package com.todobackend.service;
 
-import com.todobackend.model.Task;
-
+import com.todobackend.dto.TaskDTO;
 import java.util.List;
 import java.util.Optional;
 
 public interface ITaskService {
-    Task findTaskById(long id);
-    Task createTask(Task task);
-    Task updateTask(Task task);
-    Optional<List<Task>> getTasksByUserName(String username);
+    Optional<TaskDTO> findTaskById(long id);
+    TaskDTO createTask(TaskDTO taskDTO);
+    Optional<TaskDTO> updateTask(long taskId, TaskDTO taskDTO);
+    Optional<List<TaskDTO>> getTasksByUserName(String username);
 }

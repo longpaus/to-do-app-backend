@@ -26,6 +26,9 @@ public class UserController {
 
     @PostMapping("/user/create")
     public ResponseEntity<User> createUser(@RequestBody User user) {
+        if(userService.getUserbyUsername(user.getUsername()) != null) {
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
+        }
         user.setJoinedOn(new Date());
         return new ResponseEntity<>(userService.createUser(user), HttpStatus.CREATED);
     }

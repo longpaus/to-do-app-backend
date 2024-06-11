@@ -1,9 +1,10 @@
 package com.todobackend.service;
 
 
+import com.todobackend.dto.UserDTO;
+import com.todobackend.mapper.IUserMapper;
 import com.todobackend.model.User;
 import com.todobackend.repository.IUserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -12,26 +13,32 @@ import java.util.Optional;
 public class UserService implements IUserService {
 
     IUserRepository userRepository;
+    IUserMapper userMapper;
 
-    public UserService(IUserRepository userRepository) {
-        this.userRepository = userRepository;
+
+    @Override
+    public UserDTO createUser(UserDTO userDTO) {
+        User user = userMapper.fromDTO(userDTO);
+        User createdUser = userRepository.save(user);
+        return userMapper.toDTO(createdUser);
     }
 
     @Override
-    public User createUser(User user) {
-        return userRepository.save(user);
-    }
-
-    @Override
-    public User getUserById(long id) {
-        Optional<User> user = userRepository.findById(id);
-        return user.orElse(null);
+    public Optional<UserDTO> getUserById(long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("id not found"));
+        return Optional.of(userMapper.toDTO(user));
     }
 
     @Override
     public User getUserbyUsername(String username) {
         Optional<User> user = userRepository.findByUsername(username);
         return user.orElse(null);
+    }
+
+    @Override
+    public Optional<UserDTO> updateUser(long id, User user) {
+        return Optional.empty();
     }
 
 

@@ -25,6 +25,6 @@ public class Task {
     private Date dueDate;
 
     @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "user_name")
+    @JoinColumn(name = "user")
     private User user;
 }
