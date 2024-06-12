@@ -2,6 +2,9 @@ package com.todobackend.service;
 
 
 import com.todobackend.dto.UserDTO;
+import com.todobackend.exception.IdNotFoundException;
+import com.todobackend.exception.UserNameExistException;
+import com.todobackend.exception.UserNameNotFoundException;
 import com.todobackend.mapper.IUserMapper;
 import com.todobackend.model.User;
 import com.todobackend.repository.IUserRepository;
@@ -19,7 +22,7 @@ public class UserService implements IUserService {
     public UserDTO createUser(UserDTO userDTO) {
         Optional<User> existingUser = userRepository.findByUsername(userDTO.getUsername());
         if(existingUser.isPresent()) {
-            throw new RuntimeException("username already exist");
+            throw new UserNameExistException("username already exist");
         }
         User user = userMapper.fromDTO(userDTO);
         User createdUser = userRepository.save(user);
@@ -27,31 +30,33 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public Optional<UserDTO> getUserById(long id) {
+    public UserDTO getUserById(long id) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("id not found"));
-        return Optional.of(userMapper.toDTO(user));
+                .orElseThrow(() -> new IdNotFoundException("id not found"));
+        return userMapper.toDTO(user);
     }
 
     @Override
-    public Optional<UserDTO> getUserbyUsername(String username) {
+    public UserDTO getUserbyUsername(String username) {
        User user = userRepository.findByUsername(username)
-                        .orElseThrow(() -> new RuntimeException("username not found"));
-        return Optional.of(userMapper.toDTO(user));
+                        .orElseThrow(() -> new UserNameNotFoundException("username not found"));
+        return userMapper.toDTO(user);
     }
 
     @Override
-    public Optional<UserDTO> updateUser(long id, User updatedUser) {
+    public UserDTO updateUser(long id, User updatedUser) {
         User existingUser = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("id not found"));
+                .orElseThrow(() -> new IdNotFoundException("id not found"));
 
         User savedUser = userRepository.save(existingUser);
-        return Optional.of(userMapper.toDTO(savedUser));
+        return userMapper.toDTO(savedUser);
     }
 
 
     @Override
     public void deleteUser(long id) {
+        userRepository.findById(id)
+                .orElseThrow(() -> new IdNotFoundException("id not found"));
         userRepository.deleteById(id);
     }
 }
