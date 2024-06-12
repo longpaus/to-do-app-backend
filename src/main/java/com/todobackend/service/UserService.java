@@ -16,8 +16,11 @@ public class UserService implements IUserService {
     IUserMapper userMapper;
 
 
-    @Override
     public UserDTO createUser(UserDTO userDTO) {
+        Optional<User> existingUser = userRepository.findByUsername(userDTO.getUsername());
+        if(existingUser.isPresent()) {
+            throw new RuntimeException("username already exist");
+        }
         User user = userMapper.fromDTO(userDTO);
         User createdUser = userRepository.save(user);
         return userMapper.toDTO(createdUser);
@@ -31,33 +34,21 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public User getUserbyUsername(String username) {
-        Optional<User> user = userRepository.findByUsername(username);
-        return user.orElse(null);
+    public Optional<UserDTO> getUserbyUsername(String username) {
+       User user = userRepository.findByUsername(username)
+                        .orElseThrow(() -> new RuntimeException("username not found"));
+        return Optional.of(userMapper.toDTO(user));
     }
 
     @Override
-    public Optional<UserDTO> updateUser(long id, User user) {
-        return Optional.empty();
+    public Optional<UserDTO> updateUser(long id, User updatedUser) {
+        User existingUser = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("id not found"));
+
+        User savedUser = userRepository.save(existingUser);
+        return Optional.of(userMapper.toDTO(savedUser));
     }
 
-
-    @Override
-    public User updateUser( User user) {
-        // Check if the user exists
-        Optional<User> optionalExistingUser = userRepository.findById(user.getId());
-        if (optionalExistingUser.isPresent()) {
-            User existingUser = optionalExistingUser.get();
-            // Update user properties
-            existingUser.setUsername(user.getUsername());
-            existingUser.setPassword(user.getPassword());
-            // Save the updated user using UserRepository
-            return userRepository.save(existingUser);
-        } else {
-            // User with the given id not found
-            return null;
-        }
-    }
 
     @Override
     public void deleteUser(long id) {

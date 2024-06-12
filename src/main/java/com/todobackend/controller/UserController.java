@@ -1,5 +1,6 @@
 package com.todobackend.controller;
 
+import com.todobackend.dto.UserDTO;
 import com.todobackend.model.User;
 import com.todobackend.service.UserService;
 import org.springframework.http.HttpStatus;
@@ -25,16 +26,18 @@ public class UserController {
     }
 
     @PostMapping("/user/create")
-    public ResponseEntity<User> createUser(@RequestBody User user) {
-        if(userService.getUserbyUsername(user.getUsername()) != null) {
-            return new ResponseEntity<>(HttpStatus.CONFLICT);
+    public ResponseEntity<UserDTO> createUser(@RequestBody UserDTO newuserDTO) {
+        try {
+             UserDTO dto = userService.createUser(newuserDTO);
+             return new ResponseEntity<>(dto, HttpStatus.CREATED);
         }
-        user.setJoinedOn(new Date());
-        return new ResponseEntity<>(userService.createUser(user), HttpStatus.CREATED);
+        catch (Exception e) {
+            return new ResponseEntity<>( HttpStatus.CONFLICT);
+        }
     }
 
     @PostMapping("/user/login")
-    public ResponseEntity<String> login(@RequestBody User user) {
+    public ResponseEntity<String> login(@RequestBody UserDTO userDTO) {
         User foundUser = userService.getUserbyUsername(user.getUsername());
         if (foundUser != null) {
             return new ResponseEntity<>("Login successful", HttpStatus.OK);
