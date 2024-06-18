@@ -1,4 +1,4 @@
-package com.todobackend.test.user;
+package com.todobackend.test.service;
 
 import com.todobackend.dto.UserDTO;
 import com.todobackend.exception.IdNotFoundException;
@@ -7,16 +7,13 @@ import com.todobackend.exception.UserNameNotFoundException;
 import com.todobackend.mapper.IUserMapper;
 import com.todobackend.model.User;
 import com.todobackend.repository.IUserRepository;
-import com.todobackend.service.IUserService;
 import com.todobackend.service.UserService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.Calendar;
 import java.util.Date;
