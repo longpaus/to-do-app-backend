@@ -8,10 +8,10 @@ import org.mapstruct.Mapping;
 @Mapper
 public interface ITaskMapper {
 
-    @Mapping(target = "userId", expression = "java(task.getUser().getId())")
+//    @Mapping(target = "userId", expression = "java(task.getUser().getId())")
     TaskDTO toDTO(Task task);
 
-    @Mapping(target = "id", ignore = true)
+//    @Mapping(target = "id", ignore = true)
     Task fromDTO(TaskDTO taskDTO);
 
 }

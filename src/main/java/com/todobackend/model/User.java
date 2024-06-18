@@ -29,4 +29,35 @@ public class User {
     @Column(name="joined_on",nullable = false, updatable = false)
     private Date joinedOn;
 
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public Date getJoinedOn() {
+        return joinedOn;
+    }
+
+    public void setJoinedOn(Date joinedOn) {
+        this.joinedOn = joinedOn;
+    }
 }
