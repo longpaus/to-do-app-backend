@@ -8,6 +8,7 @@ import com.todobackend.exception.UserNameNotFoundException;
 import com.todobackend.mapper.IUserMapper;
 import com.todobackend.model.User;
 import com.todobackend.repository.IUserRepository;
+import jakarta.annotation.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,15 +17,16 @@ import java.util.Optional;
 @Service
 public class UserService implements IUserService {
 
-    IUserRepository userRepository;
-
-    IUserMapper userMapper;
+    @Autowired
+    private IUserRepository userRepository;
 
     @Autowired
-    public UserService(IUserRepository userRepository, IUserMapper userMapper) {
-        this.userRepository = userRepository;
+    private IUserMapper userMapper;
+
+    public UserService(IUserMapper userMapper) {
         this.userMapper = userMapper;
     }
+
 
     public UserDTO createUser(UserDTO userDTO) {
         Optional<User> existingUser = userRepository.findByUsername(userDTO.getUsername());
