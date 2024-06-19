@@ -3,6 +3,7 @@ package com.todobackend.test.controller;
 import com.todobackend.dto.UserDTO;
 import com.todobackend.dto.UserLoginDTO;
 import com.todobackend.exception.UserNameExistException;
+import com.todobackend.exception.UserNameNotFoundException;
 import com.todobackend.model.User;
 import com.todobackend.repository.IUserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -26,7 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-public class UserControllerTest {
+public class UserControllerIntegrationTest {
     @Autowired
     private MockMvc mockMvc;
 
@@ -65,7 +66,7 @@ public class UserControllerTest {
         assertEquals(newUserDTO.getUsername(), responseUserDTO.getUsername());
         assertEquals(newUserDTO.getPassword(), responseUserDTO.getPassword());
         assertEquals("01.07.2023", responseUserDTO.getJoinedOn());
-        
+
         // Verify that the user was persisted
         Optional<User> createdUser = userRepository.findByUsername("newusername");
         assertTrue(createdUser.isPresent());
@@ -127,6 +128,45 @@ public class UserControllerTest {
         UserDTO responseUserDTO = objectMapper.readValue(responseBody, UserDTO.class);
         assertEquals(responseUserDTO.getUsername(), user.getUsername());
         assertEquals(responseUserDTO.getPassword(), user.getPassword());
+    }
+
+    @Test
+    public void loginUsernameDontExistTest() throws Exception {
+        UserLoginDTO userLoginDTO = new UserLoginDTO();
+        userLoginDTO.setUserName("newusername");
+        userLoginDTO.setPassword("newpassword");
+
+        String loginJson = objectMapper.writeValueAsString(userLoginDTO);
+
+        mockMvc.perform(post("/user/login")
+                        .content(loginJson)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(result -> assertInstanceOf(UserNameNotFoundException.class, result.getResolvedException()))
+                .andExpect(status().isNotFound());
+
+    }
+
+    @Test
+    public void loginPasswordDontMatchTest() throws Exception {
+        // arrange
+        Date creationDate = new Date(124, Calendar.JUNE, 17);
+        User user = new User();
+        user.setUsername("newusername");
+        user.setPassword("newpassword");
+        user.setJoinedOn(creationDate);
+        userRepository.save(user);
+
+        UserLoginDTO userLoginDTO = new UserLoginDTO();
+        userLoginDTO.setUserName("newusername");
+        userLoginDTO.setPassword("differentpassword");
+
+        String loginJson = objectMapper.writeValueAsString(userLoginDTO);
+        mockMvc.perform(post("/user/login")
+                        .content(loginJson)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isUnauthorized());
     }
 
 }
