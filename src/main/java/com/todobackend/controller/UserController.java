@@ -20,7 +20,7 @@ public class UserController {
 
     @GetMapping("/")
     public String hello() {
-        return "hello, world!!";
+        return "Hello, World";
     }
 
     @PostMapping("/user/create")
@@ -30,13 +30,15 @@ public class UserController {
     }
 
     @PostMapping("/user/login")
-    public ResponseEntity<String> login(@RequestBody UserLoginDTO userLoginDTO) {
+    public ResponseEntity<UserDTO> login(@RequestBody UserLoginDTO userLoginDTO) {
 
-        UserDTO user = userService.getUserByUsername(userLoginDTO.getUserName());
-        if (user.getPassword().equals(userLoginDTO.getPassword())) {
-            return new ResponseEntity<>(user.getUsername(), HttpStatus.OK);
+        UserDTO userDTO = userService.getUserByUsername(userLoginDTO.getUserName());
+
+        if (userDTO.getPassword().equals(userLoginDTO.getPassword())) {
+            return new ResponseEntity<>(userDTO, HttpStatus.OK);
         }
 
-        return new ResponseEntity<>("Invalid username or password", HttpStatus.UNAUTHORIZED);
+        return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+
     }
 }
