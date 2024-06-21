@@ -1,7 +1,7 @@
 package com.todobackend.test.controller;
 
 import com.todobackend.dto.UserDTO;
-import com.todobackend.dto.UserLoginDTO;
+import com.todobackend.dto.UserFormDTO;
 import com.todobackend.exception.UserNameExistException;
 import com.todobackend.exception.UserNameNotFoundException;
 import com.todobackend.model.User;
@@ -13,6 +13,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Description;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
@@ -27,6 +28,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@ActiveProfiles("test")
 public class UserControllerIntegrationTest {
     @Autowired
     private MockMvc mockMvc;
@@ -45,13 +47,13 @@ public class UserControllerIntegrationTest {
     }
 
     @Test
-    void shouldCreateUser() throws Exception {
-        UserDTO newUserDTO = new UserDTO();
-        newUserDTO.setUsername("newusername");
-        newUserDTO.setPassword("newpassword");
-        newUserDTO.setJoinedOn("01.07.2023");
+    void createUserTest() throws Exception {
+        UserFormDTO userFormDTO = new UserFormDTO();
+        userFormDTO.setUsername("newusername");
+        userFormDTO.setPassword("password");
 
-        String userJson = objectMapper.writeValueAsString(newUserDTO);
+
+        String userJson = objectMapper.writeValueAsString(userFormDTO);
 
         MvcResult res = mockMvc.perform(post("/user/create")
                         .content(userJson)
@@ -63,15 +65,15 @@ public class UserControllerIntegrationTest {
         String responseString = res.getResponse().getContentAsString();
         UserDTO responseUserDTO = objectMapper.readValue(responseString, UserDTO.class);
 
-        assertEquals(newUserDTO.getUsername(), responseUserDTO.getUsername());
-        assertEquals(newUserDTO.getPassword(), responseUserDTO.getPassword());
-        assertEquals("01.07.2023", responseUserDTO.getJoinedOn());
+        assertEquals(userFormDTO.getUsername(), responseUserDTO.getUsername());
+        assertEquals(userFormDTO.getPassword(), responseUserDTO.getPassword());
+        assertNotNull(responseUserDTO.getJoinedOn());
 
         // Verify that the user was persisted
-        Optional<User> createdUser = userRepository.findByUsername("newusername");
+        Optional<User> createdUser = userRepository.findByUsername(userFormDTO.getUsername());
         assertTrue(createdUser.isPresent());
-        assertEquals("newusername", createdUser.get().getUsername());
-        assertEquals("newpassword", createdUser.get().getPassword());
+        assertEquals(userFormDTO.getUsername(), createdUser.get().getUsername());
+        assertEquals(userFormDTO.getPassword(), createdUser.get().getPassword());
     }
 
     @Test
@@ -84,12 +86,12 @@ public class UserControllerIntegrationTest {
         user.setPassword("newpassword");
         user.setJoinedOn(creationDate);
         userRepository.save(user);
-        UserDTO newUserDTO = new UserDTO();
-        newUserDTO.setUsername("newusername");
-        newUserDTO.setPassword("newpassword");
-        newUserDTO.setJoinedOn("01.07.2023");
 
-        String userJson = objectMapper.writeValueAsString(newUserDTO);
+        UserFormDTO userFormDTO = new UserFormDTO();
+        userFormDTO.setUsername("newusername");
+        userFormDTO.setPassword("password");
+
+        String userJson = objectMapper.writeValueAsString(userFormDTO);
 
         // Act and Assert
         mockMvc.perform(post("/user/create")
@@ -110,15 +112,16 @@ public class UserControllerIntegrationTest {
         user.setJoinedOn(creationDate);
         userRepository.save(user);
 
-        UserLoginDTO userLoginDTO = new UserLoginDTO();
-        userLoginDTO.setUserName("newusername");
-        userLoginDTO.setPassword("newpassword");
+        UserFormDTO userFormDTO = new UserFormDTO();
+        userFormDTO.setUsername(user.getUsername());
+        userFormDTO.setPassword(user.getPassword());
 
-        String loginJson = objectMapper.writeValueAsString(userLoginDTO);
+
+        String userJson = objectMapper.writeValueAsString(userFormDTO);
 
         // act & assert
         MvcResult res = mockMvc.perform(post("/user/login")
-                        .content(loginJson)
+                        .content(userJson)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -132,14 +135,15 @@ public class UserControllerIntegrationTest {
 
     @Test
     public void loginUsernameDontExistTest() throws Exception {
-        UserLoginDTO userLoginDTO = new UserLoginDTO();
-        userLoginDTO.setUserName("newusername");
-        userLoginDTO.setPassword("newpassword");
+        UserFormDTO userFormDTO = new UserFormDTO();
+        userFormDTO.setUsername("newusername");
+        userFormDTO.setPassword("password");
 
-        String loginJson = objectMapper.writeValueAsString(userLoginDTO);
+
+        String userJson = objectMapper.writeValueAsString(userFormDTO);
 
         mockMvc.perform(post("/user/login")
-                        .content(loginJson)
+                        .content(userJson)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(result -> assertInstanceOf(UserNameNotFoundException.class, result.getResolvedException()))
@@ -157,13 +161,15 @@ public class UserControllerIntegrationTest {
         user.setJoinedOn(creationDate);
         userRepository.save(user);
 
-        UserLoginDTO userLoginDTO = new UserLoginDTO();
-        userLoginDTO.setUserName("newusername");
-        userLoginDTO.setPassword("differentpassword");
+        UserFormDTO userFormDTO = new UserFormDTO();
+        userFormDTO.setUsername(user.getUsername());
+        userFormDTO.setPassword("differentpassword");
 
-        String loginJson = objectMapper.writeValueAsString(userLoginDTO);
+
+        String userJson = objectMapper.writeValueAsString(userFormDTO);
+
         mockMvc.perform(post("/user/login")
-                        .content(loginJson)
+                        .content(userJson)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isUnauthorized());

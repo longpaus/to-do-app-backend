@@ -1,10 +1,12 @@
 package com.todobackend.mapper;
 
 import com.todobackend.dto.UserDTO;
+import com.todobackend.dto.UserFormDTO;
 import com.todobackend.model.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
+
 
 @Mapper(componentModel = "spring")
 public interface IUserMapper {
@@ -15,7 +17,7 @@ public interface IUserMapper {
             @Mapping(source = "password", target = "password"),
             @Mapping(source = "joinedOn", target = "joinedOn", dateFormat = "dd.MM.yyyy")
     })
-    UserDTO toDTO(User user);
+    UserDTO userToUserDTO(User user);
 
     @Mappings({
             @Mapping(source = "id", target = "id"),
@@ -23,5 +25,12 @@ public interface IUserMapper {
             @Mapping(source = "password", target = "password"),
             @Mapping(source = "joinedOn", target = "joinedOn", dateFormat = "dd.MM.yyyy")
     })
-    User fromDTO(UserDTO userDTO);
+    User userDTOToUser(UserDTO userDTO);
+
+    @Mappings({
+            @Mapping(source = "username", target = "username"),
+            @Mapping(source = "password", target = "password"),
+            @Mapping(target = "joinedOn", expression = "java(new java.util.Date())")
+    })
+    User userFormDTOToUser(UserFormDTO userFormDTO);
 }

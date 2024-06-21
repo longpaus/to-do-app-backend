@@ -1,6 +1,7 @@
 package com.todobackend.test.service;
 
 import com.todobackend.dto.UserDTO;
+import com.todobackend.dto.UserFormDTO;
 import com.todobackend.exception.IdNotFoundException;
 import com.todobackend.exception.UserNameExistException;
 import com.todobackend.exception.UserNameNotFoundException;
@@ -38,26 +39,28 @@ public class UserServiceTest {
     @Test()
     void testCreateUser() {
         // arrange
-        Date creationDate = new Date(124, Calendar.JUNE,17);
+        Date creationDate = new Date(124, Calendar.JUNE, 17);
+
+        UserFormDTO userFormDTO = new UserFormDTO();
+        userFormDTO.setUsername("username");
+        userFormDTO.setPassword("password");
+
+        User user = new User();
+        user.setUsername(userFormDTO.getUsername());
+        user.setPassword(userFormDTO.getPassword());
+        user.setJoinedOn(creationDate);
+
         UserDTO userDTO = new UserDTO();
-        userDTO.setId(1);
         userDTO.setUsername("userName");
         userDTO.setPassword("password");
         userDTO.setJoinedOn("17.06.2024");
 
-        User user = new User();
-        user.setId(userDTO.getId());
-        user.setUsername(userDTO.getUsername());
-        user.setPassword(userDTO.getPassword());
-        user.setJoinedOn(creationDate);
-
-        when(userMapper.fromDTO(userDTO)).thenReturn(user);
-        when(userMapper.toDTO(user)).thenReturn(userDTO);
+        when(userMapper.userFormDTOToUser(userFormDTO)).thenReturn(user);
+        when(userMapper.userToUserDTO(user)).thenReturn(userDTO);
         when(userRepository.save(user)).thenReturn(user);
 
-
         // act
-        UserDTO resDTO = userService.createUser(userDTO);
+        UserDTO resDTO = userService.createUser(userFormDTO);
 
         // assert
         assertEquals(userDTO.getUsername(), resDTO.getUsername());
@@ -69,17 +72,17 @@ public class UserServiceTest {
     @Test
     void testCreateUserThrowException() {
         // arrange
-        UserDTO userDTO = new UserDTO();
-        userDTO.setUsername("existUsername");
+        UserFormDTO userFormDTO = new UserFormDTO();
+        userFormDTO.setUsername("existUsername");
 
         User user = new User();
-        user.setUsername(userDTO.getUsername());
-        when(userRepository.findByUsername(userDTO.getUsername())).thenReturn(Optional.of(user));
+        user.setUsername(userFormDTO.getUsername());
+        when(userRepository.findByUsername(userFormDTO.getUsername())).thenReturn(Optional.of(user));
 
         // act & assert
-        assertThrows(UserNameExistException.class, () -> userService.createUser(userDTO));
+        assertThrows(UserNameExistException.class, () -> userService.createUser(userFormDTO));
 
-        verify(userRepository, times(1)).findByUsername(userDTO.getUsername());
+        verify(userRepository, times(1)).findByUsername(userFormDTO.getUsername());
         verify(userRepository, never()).save(any(User.class));
     }
 
@@ -101,7 +104,7 @@ public class UserServiceTest {
         userDTO.setJoinedOn("17.06.2024");
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-        when(userMapper.toDTO(user)).thenReturn(userDTO);
+        when(userMapper.userToUserDTO(user)).thenReturn(userDTO);
 
         // act
         UserDTO result = userService.getUserById(userId);
@@ -144,7 +147,7 @@ public class UserServiceTest {
         userDTO.setJoinedOn("17.06.2024");
 
         when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
-        when(userMapper.toDTO(user)).thenReturn(userDTO);
+        when(userMapper.userToUserDTO(user)).thenReturn(userDTO);
 
         // act
         UserDTO result = userService.getUserByUsername(username);
@@ -194,7 +197,7 @@ public class UserServiceTest {
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(existingUser));
         when(userRepository.save(existingUser)).thenReturn(updatedUser);
-        when(userMapper.toDTO(updatedUser)).thenReturn(updatedUserDTO);
+        when(userMapper.userToUserDTO(updatedUser)).thenReturn(updatedUserDTO);
 
         // act
         UserDTO result = userService.updateUser(userId, updatedUser);

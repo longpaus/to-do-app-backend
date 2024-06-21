@@ -1,7 +1,7 @@
 package com.todobackend.controller;
 
 import com.todobackend.dto.UserDTO;
-import com.todobackend.dto.UserLoginDTO;
+import com.todobackend.dto.UserFormDTO;
 import com.todobackend.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,17 +24,17 @@ public class UserController {
     }
 
     @PostMapping("/user/create")
-    public ResponseEntity<UserDTO> createUser(@RequestBody UserDTO newuserDTO) {
-        UserDTO createdUserDTO = userService.createUser(newuserDTO);
+    public ResponseEntity<UserDTO> createUser(@RequestBody UserFormDTO newUserDTO) {
+        UserDTO createdUserDTO = userService.createUser(newUserDTO);
         return new ResponseEntity<>(createdUserDTO, HttpStatus.CREATED);
     }
 
     @PostMapping("/user/login")
-    public ResponseEntity<UserDTO> login(@RequestBody UserLoginDTO userLoginDTO) {
+    public ResponseEntity<UserDTO> login(@RequestBody UserFormDTO userFormDTO) {
 
-        UserDTO userDTO = userService.getUserByUsername(userLoginDTO.getUserName());
+        UserDTO userDTO = userService.getUserByUsername(userFormDTO.getUsername());
 
-        if (userDTO.getPassword().equals(userLoginDTO.getPassword())) {
+        if (userDTO.getPassword().equals(userFormDTO.getPassword())) {
             return new ResponseEntity<>(userDTO, HttpStatus.OK);
         }
 

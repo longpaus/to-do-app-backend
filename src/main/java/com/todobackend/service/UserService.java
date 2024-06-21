@@ -2,13 +2,13 @@ package com.todobackend.service;
 
 
 import com.todobackend.dto.UserDTO;
+import com.todobackend.dto.UserFormDTO;
 import com.todobackend.exception.IdNotFoundException;
 import com.todobackend.exception.UserNameExistException;
 import com.todobackend.exception.UserNameNotFoundException;
 import com.todobackend.mapper.IUserMapper;
 import com.todobackend.model.User;
 import com.todobackend.repository.IUserRepository;
-import jakarta.annotation.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -28,28 +28,28 @@ public class UserService implements IUserService {
     }
 
 
-    public UserDTO createUser(UserDTO userDTO) {
-        Optional<User> existingUser = userRepository.findByUsername(userDTO.getUsername());
-        if(existingUser.isPresent()) {
+    public UserDTO createUser(UserFormDTO userFormDTO) throws UserNameExistException {
+        Optional<User> existingUser = userRepository.findByUsername(userFormDTO.getUsername());
+        if (existingUser.isPresent()) {
             throw new UserNameExistException("username already exist");
         }
-        User user = userMapper.fromDTO(userDTO);
+        User user = userMapper.userFormDTOToUser(userFormDTO);
         User createdUser = userRepository.save(user);
-        return userMapper.toDTO(createdUser);
+        return userMapper.userToUserDTO(createdUser);
     }
 
     @Override
-    public UserDTO getUserById(long id) {
+    public UserDTO getUserById(long id) throws IdNotFoundException {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new IdNotFoundException("id not found"));
-        return userMapper.toDTO(user);
+        return userMapper.userToUserDTO(user);
     }
 
     @Override
     public UserDTO getUserByUsername(String username) {
-       User user = userRepository.findByUsername(username)
-                        .orElseThrow(() -> new UserNameNotFoundException("username not found"));
-        return userMapper.toDTO(user);
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UserNameNotFoundException("username not found"));
+        return userMapper.userToUserDTO(user);
     }
 
     @Override
@@ -58,7 +58,7 @@ public class UserService implements IUserService {
                 .orElseThrow(() -> new IdNotFoundException("id not found"));
 
         User savedUser = userRepository.save(existingUser);
-        return userMapper.toDTO(savedUser);
+        return userMapper.userToUserDTO(savedUser);
     }
 
 
