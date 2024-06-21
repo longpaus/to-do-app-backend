@@ -9,6 +9,8 @@ public class TaskDTO {
     private long id;
     private String name;
     private boolean completed;
+    private String dueDate;
+    private long userId;
 
     public String getDueDate() {
         return dueDate;
@@ -50,6 +52,5 @@ public class TaskDTO {
         this.userId = userId;
     }
 
-    private String dueDate;
-    private long userId;
+
 }

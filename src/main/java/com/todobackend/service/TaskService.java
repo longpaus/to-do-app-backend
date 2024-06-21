@@ -6,7 +6,6 @@ import com.todobackend.model.Task;
 import com.todobackend.model.User;
 import com.todobackend.repository.ITaskRepository;
 import com.todobackend.repository.IUserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -26,7 +25,7 @@ public class TaskService implements ITaskService{
         Task existingTask = taskRepository.findById(taskId)
                 .orElseThrow(() -> new RuntimeException("Task not found"));
 
-        return Optional.of(taskMapper.toDTO(existingTask));
+        return Optional.of(taskMapper.taskToTaskDTO(existingTask));
     }
 
     @Override
@@ -34,10 +33,10 @@ public class TaskService implements ITaskService{
         User user = userRepository.findById(taskDTO.getUserId())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        Task task = taskMapper.fromDTO(taskDTO);
+        Task task = taskMapper.taskDTOToTask(taskDTO, user);
         task.setUser(user);
 
-        return taskMapper.toDTO(taskRepository.save(task));
+        return taskMapper.taskToTaskDTO(taskRepository.save(task));
     }
 
     @Override
@@ -49,12 +48,12 @@ public class TaskService implements ITaskService{
         User user = userRepository.findById(taskDTO.getUserId())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        Task updatedTask = taskMapper.fromDTO(taskDTO);
+        Task updatedTask = taskMapper.taskDTOToTask(taskDTO,user);
         updatedTask.setId(taskId);
         updatedTask.setUser(user);
 
         Task savedTask = taskRepository.save(updatedTask);
-        return Optional.of(taskMapper.toDTO(savedTask));
+        return Optional.of(taskMapper.taskToTaskDTO(savedTask));
     }
 
 
@@ -66,7 +65,7 @@ public class TaskService implements ITaskService{
 
         List<TaskDTO> taskDTOS = new ArrayList<>();
         for (Task task : existingTasks) {
-            taskDTOS.add(taskMapper.toDTO(task));
+            taskDTOS.add(taskMapper.taskToTaskDTO(task));
         }
         return Optional.of(taskDTOS);
     }
