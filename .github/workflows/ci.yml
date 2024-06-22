@@ -18,9 +18,7 @@ jobs:
           java-version: '22'
           distribution: 'temurin'
           cache: maven
+      - name: build with maven
+        run: mvn -B package --file pom.xml
 
-      - name: Build with Maven
-        run: mvn clean install
 
-      - name: Run tests
-        run: mvn test
