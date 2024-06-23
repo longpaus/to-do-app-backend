@@ -25,7 +25,7 @@ public class TaskService implements ITaskService{
     @Override
     public TaskDTO findTaskById(long taskId) {
         Task existingTask = taskRepository.findById(taskId)
-                .orElseThrow(() -> new IdNotFoundException("Task id not found"));
+                .orElseThrow(() -> new IdNotFoundException("Task Id not found"));
 
         return taskMapper.taskToTaskDTO(existingTask);
     }
@@ -33,11 +33,9 @@ public class TaskService implements ITaskService{
     @Override
     public TaskDTO createTask(CreateTaskDTO createTaskDTO) {
         User user = userRepository.findById(createTaskDTO.getUserId())
-                .orElseThrow(() -> new IdNotFoundException("User id not found"));
+                .orElseThrow(() -> new IdNotFoundException("User Id not found"));
 
         Task task = taskMapper.createTaskDTOtoTask(createTaskDTO, user);
-        task.setUser(user);
-
         return taskMapper.taskToTaskDTO(taskRepository.save(task));
     }
 
