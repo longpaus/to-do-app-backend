@@ -52,6 +52,7 @@ public class TaskControllerIntegrationTest {
         objectMapper = new ObjectMapper();
 
         taskRepository.deleteAll();
+        userRepository.deleteAll();
     }
 
     @Test
@@ -76,7 +77,7 @@ public class TaskControllerIntegrationTest {
 
         String taskJson = objectMapper.writeValueAsString(createTaskDTO);
 
-        MvcResult res = mockMvc.perform(post("/task/create")
+        MvcResult res = mockMvc.perform(post("/tasks/create")
                 .content(taskJson)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
