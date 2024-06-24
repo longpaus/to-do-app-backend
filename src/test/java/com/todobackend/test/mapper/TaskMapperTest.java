@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Description;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -88,6 +89,30 @@ public class TaskMapperTest {
         assertEquals(createTaskDTO.getName(), task.getName());
         assertEquals(1, task.getId()); // default value of taskMapper
         assertEquals(creationDate, task.getDueDate());
+        assertEquals(user, task.getUser());
+        assertFalse(task.isCompleted());
+    }
+
+    @Test
+    @Description("the duedate is null")
+    public void testCreateTaskDTO_toTask_nullDueDate() {
+        CreateTaskDTO createTaskDTO = new CreateTaskDTO();
+        createTaskDTO.setName("new task");
+        createTaskDTO.setDueDate(null);
+        createTaskDTO.setUserId(1L);
+
+        Date creationDate = new Date(124, Calendar.JUNE, 17);
+        User user = new User();
+        user.setId(1L);
+        user.setUsername("userName");
+        user.setPassword("password");
+        user.setJoinedOn(creationDate);
+
+        Task task = taskMapper.createTaskDTOtoTask(createTaskDTO, user);
+        assertNotNull(task);
+        assertEquals(createTaskDTO.getName(), task.getName());
+        assertEquals(1, task.getId()); // default value of taskMapper
+        assertNull(task.getDueDate());
         assertEquals(user, task.getUser());
         assertFalse(task.isCompleted());
     }

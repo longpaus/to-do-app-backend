@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ITaskRepository extends JpaRepository<Task, Long> {
-
-    @Query(nativeQuery = true, value = "Select * From tasks Where user_name = ?1")
-    Optional<List<Task>> getTasksByUserName(String username);
+    @Query(nativeQuery = true, value = "Select * From Tasks where user_id = ?1")
+    List<Task> getTasksByUserId(Long userId);
 }
