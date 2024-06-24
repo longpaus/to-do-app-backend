@@ -8,6 +8,8 @@ import com.todobackend.model.Task;
 import com.todobackend.model.User;
 import com.todobackend.repository.ITaskRepository;
 import com.todobackend.repository.IUserRepository;
+import jakarta.transaction.Transactional;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -16,10 +18,13 @@ import java.util.Optional;
 
 @Service
 public class TaskService implements ITaskService{
+    @Autowired
     ITaskRepository taskRepository;
 
+    @Autowired
     IUserRepository userRepository;
 
+    @Autowired
     ITaskMapper taskMapper;
 
     @Override
@@ -49,8 +54,6 @@ public class TaskService implements ITaskService{
                 .orElseThrow(() -> new IdNotFoundException("User not found"));
 
         Task updatedTask = taskMapper.taskDTOToTask(taskDTO,user);
-        updatedTask.setId(taskId);
-        updatedTask.setUser(user);
 
         Task savedTask = taskRepository.save(updatedTask);
         return taskMapper.taskToTaskDTO(savedTask);

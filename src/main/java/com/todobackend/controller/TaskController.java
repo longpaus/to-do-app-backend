@@ -21,12 +21,12 @@ public class TaskController {
         this.taskService = taskService;
     }
 
-    @PostMapping("/task/create")
+    @PostMapping("/tasks/create")
     ResponseEntity<TaskDTO> createTask(@RequestBody CreateTaskDTO createTaskDTO) {
         return new ResponseEntity<>(taskService.createTask(createTaskDTO),HttpStatus.CREATED);
     }
 
-    @PostMapping("/task/update/{taskId}")
+    @PutMapping("/tasks/update/{taskId}")
     ResponseEntity<TaskDTO> updateTask(@PathVariable long taskId, @RequestBody TaskDTO taskDTO) {
         TaskDTO updatedTask = taskService.updateTask(taskId, taskDTO);
         return new ResponseEntity<>(updatedTask, HttpStatus.OK);

@@ -3,8 +3,8 @@ package com.todobackend.dto;
 import lombok.*;
 
 import java.util.Date;
+import java.util.Objects;
 
-@Data
 public class TaskDTO {
     private long id;
     private String name;
@@ -52,5 +52,16 @@ public class TaskDTO {
         this.userId = userId;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true; // Check if the objects are the same
+        if (o == null || getClass() != o.getClass()) return false; // Check if the object is of the same class
+        TaskDTO taskDTO = (TaskDTO) o; // Cast the object to the same class
+        return id == taskDTO.id &&
+                completed == taskDTO.completed &&
+                userId == taskDTO.userId &&
+                Objects.equals(name, taskDTO.name) &&
+                Objects.equals(dueDate, taskDTO.dueDate);
+    }
 
 }
