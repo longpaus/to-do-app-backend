@@ -27,4 +27,11 @@ public class GloblaExceptionHandler {
                 .body(e.getMessage());
     }
 
+    @ExceptionHandler({InvalidStrategyException.class})
+    public ResponseEntity<Object> handleStrategyNotFoundException(InvalidStrategyException e) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(e.getMessage());
+    }
+
 }

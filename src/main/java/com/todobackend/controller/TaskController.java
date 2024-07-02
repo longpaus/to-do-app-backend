@@ -2,6 +2,7 @@ package com.todobackend.controller;
 
 import com.todobackend.dto.CreateTaskDTO;
 import com.todobackend.dto.TaskDTO;
+import com.todobackend.dto.TaskGroupsDTO;
 import com.todobackend.model.Task;
 import com.todobackend.service.TaskService;
 import com.todobackend.service.UserService;
@@ -9,7 +10,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -32,9 +35,13 @@ public class TaskController {
         return new ResponseEntity<>(updatedTask, HttpStatus.OK);
     }
 
-    @GetMapping("/tasks/{userId}")
-    ResponseEntity<List<TaskDTO>> getAllTasks(@PathVariable long userId) {
-        List<TaskDTO> tasksDTO = taskService.getTasksByUserId(userId);
-        return new ResponseEntity<>(tasksDTO, HttpStatus.OK);
+    @GetMapping("/tasks/grouped")
+    public ResponseEntity<TaskGroupsDTO> getGroupedTasks(
+            @RequestHeader("userId") Long userId,
+            @RequestParam String groupBy,
+            @RequestParam String sortBy) {
+        TaskGroupsDTO dto = new TaskGroupsDTO();
+        dto.setGroups(taskService.getTaskGroupsByUserId(userId, groupBy, sortBy));
+        return new ResponseEntity<>(dto, HttpStatus.OK);
     }
 }
